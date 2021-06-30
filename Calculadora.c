@@ -1,25 +1,67 @@
+/*
+ Desenvolvedora :  Adeline Rodrigues Cruz Wyse Guimarães
+ Data inicio do projeto: 28/06/2021
+ Data inicio calculadora.c: 29/06/2021
+ Data fim projeto: 
+ Requisitos: 
+        Ser capas de pegar um valor em reais (float) e calcular qual o número máximo de visualizações que o anuncio pode atingir.
+        Esses calculos são baseados nessas regras:
+          - a cada 100 pessoas que visualizam o anúncio 12 clicam nele.
+          - a cada 20 pessoas que clicam no anúncio 3 compartilham nas redes sociais.
+          - cada compartilhamento nas redes sociais gera 40 novas visualizações.
+          - 30 pessoas visualizam o anúncio original (não compartilhado) a cada R$ 1,00 investido.
+          - o mesmo anúncio é compartilhado no máximo 4 vezes em sequência
+            (1ª pessoa -> compartilha -> 2ª pessoa -> compartilha - > 3ª pessoa -> compartilha -> 4ª pessoa)
+
+ Primeira parte do desafio de programação https://www.proway.com.br/academiacapmulheresdesafio.
+
+    O script pega um valor correspondente ao valor investido e faz o calculo baseado nas informações acima para quantas visualizações
+ a mais são geradas por cada 1 real investido. Esse calculo é feito 3 vezes por anuncio - isso por que como o anuncio só é compartilhado
+ 4 vezes em sequência a ultima visualização não gera novas visualizações. O script então soma as visualizações geradas com as visualizações 
+ iniciais e da o valor de maximo de visualizações para o valor investido.
+    Dados sobre o total de cliques, compartilhamentos e total de visualizações vindas de compartilhamentos são armazenadas para uso na 2 parte do
+ deafio.
+
+
+*/
 #include <stdio.h>
 
-float PegarValor(float);
+ float PegarValor(float); // função para pegar o valor do investimento;
+ int Calcular(); // Função que faz o calculo
 
-int main(){
-    float investimento = -1, 
-        vTotal = 0, 
-        totalCompartilhamentos = 0, 
-        totalCliques = 0,
-        vInicial = 0, 
-        vAdcional = 0, 
-        vCompartilhados = 0, 
-        vTemp = 0, 
-        tempCompartilhamentos = 0,
-        tempCliques = 0;
+ float investimento = 0; //  investimento em reais no anuncio
+ float vTotal = 0;  // numero total de visualizações
+ float totalCompartilhamentos = 0; // numero total de compartilhamentos no fim do programa
+ float totalCliques = 0; // numero total de cliques no fim do programa
+
+
+
+int main()
+{
+    Calcular();
+    return 0;
+}
+ 
+float PegarValor(float inv)
+{
+    printf("Quantos reais vao ser investidos?\n");
+    scanf("%f" , &inv);
+    return inv;
+    
+}
+
+int Calcular()
+{
+    float 
+        vInicial = 0, // numero de visualizações inicialmente
+        vAdcional = 0, // numero de visualizações a mais no fim do loop
+        vCompartilhados = 0, // numero de visualizações vindas de compartilhamentos,  usado para assistência dos calculos
+        vTemp = 0,  // // numero de visualizações a mais no fim de cada interação do loop, usado para assistência dos calculos
+        tempCompartilhamentos = 0, // numero de compartilhamentos,  usado para assistência dos calculos
+        tempCliques = 0; // numero de cliques ,  usado para assistência dos calculos
     int i = 0;
 
-    if(investimento<0)
-    {
-        investimento = PegarValor(investimento);
-    }
-
+    investimento = PegarValor(investimento);
     vInicial = investimento*30;
     vTemp = vInicial;
     
@@ -36,14 +78,6 @@ int main(){
    
     vTotal = (vInicial + vCompartilhados);
     
-    printf("Visualicao maxima = %f\n" , vTotal);
+    printf("Visualicao maxima = %0.1f\n" , vTotal);
     return 0;
-}
- 
-float PegarValor(float inv)
-{
-    printf("Quantos reais vao ser investidos?\n");
-    scanf("%f" , &inv);
-    return inv;
-    
 }
