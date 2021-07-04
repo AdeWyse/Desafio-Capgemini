@@ -1,33 +1,78 @@
+/*
+ Desenvolvedora :  Adeline Rodrigues Cruz Wyse Guimarães
+ Data inicio do projeto: 28/06/2021
+ Data inicio ControleAnuncio.c: 30/06/2021
+ Data fim projeto: 04/06/2021 
+ Requisitos: 
+    -Ser capaz de acessar os arquivos RegistroAnuncio.txt e RegistroRelatorio.txt e encher dois vetores dos tipos anuncio[] e relatorio[] respectivamente.
+    -Mostrar um menu de interação com o usuario com as seguintes opções:
+        -Cadastar Anuncio:
+            nome do anuncio
+            cliente
+            data de inicio
+            data de termino
+            investimento por dia
+        -Mostrar uma lista de todos os anuncios
+        -Pesquisa por tempo, divida em pesquisa por periodo, data inicial, data final ou data inicial e data final ao mesmo tempo
+        -Pesquisa por nome do cliente. (A pesquisa é "Case sensitive" e só mostra resultado positivo se o que for digitado for igual ao que esta armazenado)
+        -Pesquisa por tempo e por cliente ao mesmo tempo.(Segue as mesmas orbsevações das pesquisas individuais)
+    -Calcular os valores pedidos:(usando o script CalculadoraSistema.c)
+        valor total investido
+        quantidade maxima de visualizacoes
+        quantidade maxima de cliques
+        quantidade maxima de compartilhamentos
+    -Apresentar o relatorio desses calculos
+    -Armazenar os dados de anuncio cadastrados e relatorios processados nos arquivos RegistroAnuncio.txt e RegistroRelatorio.txt respectivamente
+
+    Segunda parte do desafio de programação https://www.proway.com.br/academiacapmulheresdesafio.
+
+   O script abre os arquivos e enche um vetor anuncio e um vetor relatorio com os dados apropriados. 
+   Se o script nao conseguir abrir os arquivos mostra uma mensagem de erro.
+   Depois e mostrado um menu para interacao com o usuario com 5 opcoes:
+    Entrar novo anuncio:
+        Pega a entrada de dados do usuario e ja processa os dados. Tambem ja faz o armazenamento dos dados de entrada e de saida nos arquivos.
+    Mostrar relatorio de todos os anuncios:
+        Mostra um relatorio de todos os anuncios
+    Pesquisa por tempo:
+        Pesquisa relatorios com o tempo escolhido/entrado pelo usuario
+    Pesquisa Cliente:
+        Pesquisa relatorios basedo no nome do cliente
+    Pesquisa Cliente e Tempo:
+        Primeiro faz uma pesquisa de cliente e usando os relatorios encontrados faz uma pesquisa por tempo
+
+
+*/
+
 #include <stdio.h>
 #include <string.h>
-#include <locale.h>
 #include "CalculadoraSistema.c"
 
 
 
-typedef struct data{
+typedef struct data// struct para manipulacao de datas
+{  
     int dia;
     int mes;
     int ano;
-}data;
+}data; 
 
-const char* anuncioFormatO =  "%s, %s, %d, %d, %d, %d, %d, %d, %f \n";
-const char* anuncioFormatI =  "%[^,], %[^,], %d, %d, %d, %d, %d, %d, %f";
-typedef struct anuncio
+const char* anuncioFormatO =  "%s, %s, %d, %d, %d, %d, %d, %d, %f \n"; // Nome Anuncio, Nome Cliente, Data inicio.Dia, Data Inicio.Mes, Data Inicio.Ano, Investimento por dia -  formatacao para imprimir dados do tipo anuncio   
+const char* anuncioFormatI =  "%[^,], %[^,], %d, %d, %d, %d, %d, %d, %f";//Nome Anuncio, Nome Cliente, Data inicio.Dia, Data Inicio.Mes, Data Inicio.Ano, Investimento por dia -  formatacao para ler dados do tipo anuncio
+typedef struct anuncio// struct para a manipulacao dos anuncios
 {
     char nome[50];
     char cliente[50];
     data dataInicio;
     data dataFim;
     float investimentoDia;
-}anuncio;
+}anuncio; // struct para a manipulação dos anuncios
 
-const char* relatorioFormatO =  "%s, %s, %d, %d, %d, %d, %d, %d, %f, %d, %f, %f, %f, %f \n";
-const char* relatorioFormatI =  "%[^,], %[^,],%d, %d, %d, %d, %d, %d, %f, %d, %f, %f, %f, %f";
-typedef struct relatorio
+const char* relatorioFormatO =  "%s, %s, %d, %d, %d, %d, %d, %d, %f, %d, %f, %f, %f, %f \n";//Nome Anuncio, Nome Cliente, Data inicio.Dia, Data Inicio.Mes, Data Inicio.Ano, Total investido, Periodo de duracao do Anuncio, Total investido, Max Visualizacoes, Max Compartilhamentos, Max Cliques -  formatacao para imprimir dados do tipo relatorio
+const char* relatorioFormatI =  "%[^,], %[^,],%d, %d, %d, %d, %d, %d, %f, %d, %f, %f, %f, %f";//Nome Anuncio, Nome Cliente, Data inicio.Dia, Data Inicio.Mes, Data Inicio.Ano, Total investido, Periodo de duracao do Anuncio, Total investido, Max Visualizacoes, Max Compartilhamentos, Max Cliques - formatacao para ler dados do tipo relatorio
+typedef struct relatorio// struct para a manipulacao dos relatorios
 {
     struct anuncio entrada;
-    int periodo;
+    int periodo; // periodo de duração de um anuncio, usado em pesquisas
     float totalInvestido;
     float maxVisualizacoes;
     float maxCompartilhamentos;
@@ -36,24 +81,24 @@ typedef struct relatorio
 }relatorio;
 
 
-int inicioDias = 0, fimDias = 0;
+int inicioDias = 0, fimDias = 0; // usado em calculos de periodo
 
 
-anuncio Entrada(anuncio, int, FILE *); // pega o input do usuario
-relatorio Processamento(anuncio, int, FILE * , relatorio); // processa o anuncio 
-void ImprimirRelatorio(relatorio);
-void PesquisarCliente(char[], relatorio[], int);
-void PesquisarData(relatorio[], int);
-void PesquisarClienteData(char[], relatorio[], int);
-int ValidarDataInicio(data); // valida data do inicio
-int ValidarDataFim(data, data);// valida data do fim, checando se acontece depois da data inicial
+anuncio Entrada(anuncio, int, FILE *); // pega o input do usuario e ja registra no arquivo RegistroAnuncio.txt
+relatorio Processamento(anuncio, int, FILE * , relatorio); // processa o anuncio em um relatorio e ja registra no arquivo RegistroRelatorio.txt
+void ImprimirRelatorio(relatorio); // imprime o relatorio
+void PesquisarCliente(char[], relatorio[], int); // pesquisa de relatorio baseado no nome de cliente
+void PesquisarData(relatorio[], int);// pesquisa de relatorio baseado no periodo/data unica/data final e inicial
+void PesquisarClienteData(char[], relatorio[], int); // adaptacao de PesquisarCliente() para fazer uma pesquisa de data no fim
+int ValidarDataInicio(data); // valida data do inicio, baseado em meses sempre com 30 dias
+int ValidarDataFim(data, data);//valida a data final, baseado em meses sempre com 30 dias e ser posterior a data de inicio do anuncio
 
 
 int main()
 {
     FILE *registroAnuncio;
     FILE *registroRelatorio;
-    //abre os arquivos que contem as informações sobre os anuncios e relatórios, se der algum problema mostra qual arquivo não abriu 
+    //abre os arquivos que contem as informacoes sobre os anuncios e relatirios, se der algum problema mostra qual arquivo nao abriu 
     registroAnuncio = fopen("RegistroAnuncio.txt", "a+");
     if(registroAnuncio == NULL)
     {
@@ -65,20 +110,23 @@ int main()
         printf("Erro abrindo arquivo RegistroRelatorio.txt\n");
     }
 
-    anuncio anuncio[1000];
-    relatorio relatorio[1000];
+    anuncio anuncio[1000]; // vetor para armazenamento dos anuncios
+    relatorio relatorio[1000];// vetor para armazenamento dos anuncios
     
-    char pesquisaCliente[50], bufferA[200], bufferR[200];
+    char pesquisaCliente[50], // usado em pesquisa
+    // variaveis para auxilio de pegar os dados dos arquivos
+     bufferA[200],
+      bufferR[200];
 
     int menu = 5, 
-      indexAnuncio = 0, // variavel que guarda o numero de anuncios já cadastrados
-      indexRelatorio = 0, // variavel que guarda o numero de relatorios já cadastrados
-     numDias = 0,
-     numAnuncios = 0,
-     i = 0,
-     j = 0, 
-     eof = 0;
+        indexAnuncio = 0, // variavel que guarda o numero de anuncios ja cadastrados
+        indexRelatorio = 0, // variavel que guarda o numero de relatorios ja cadastrados
+        numAnuncios = 0,
+        i = 0,
+        j = 0, 
+        eof = 0; // variavel para checar se end of file
     
+    //Pega os dados do RegistroAnuncio.txt e armazena no anuncio[]
     if(fgets(bufferA, 200, registroAnuncio) != NULL)
     {
         while (eof != 1)
@@ -96,6 +144,7 @@ int main()
             indexAnuncio++;
         }
     }
+    //Pega os dados do RegistroRelatorio.txt e armazena no registro[]
     eof = 0;
     if(fgets(bufferR, 200, registroRelatorio) != NULL)
     {
@@ -116,7 +165,7 @@ int main()
             printf("index %d\n", indexRelatorio);
         }
     }
-    do//menu para interação do usuario
+    do//menu para interaçaoo com o usuario
     {
         printf("O que voce deseja fazer?\n");
         printf("Cadastrar novo anuncio - 1\n");
@@ -132,7 +181,7 @@ int main()
 
         switch (menu)
             {
-            case 1:
+            case 1: /*pergunta quantos anuncios vao ser cadastrados, chama as funcoes de entrada, processamento e imprimir e atualiza arquivos*/
                 printf("Quantos anuncios voce quer cadastrar?\n");
                 scanf("%d", &numAnuncios);
                 
@@ -150,7 +199,7 @@ int main()
                     totalCliques = 0;
                 }
                 
-                fcloseall;// Fecha e abre de novo os arquivos para atualizar a lista
+                fcloseall;// fecha e abre de novo os arquivos para atualizar a lista
                 registroAnuncio = fopen("RegistroAnuncio.txt", "a+");
                 if(registroAnuncio == NULL)
                 {
@@ -168,7 +217,7 @@ int main()
                     ImprimirRelatorio(relatorio[j]);
                 }
                 break;
-            case 3:
+            case 3: 
                 PesquisarData(relatorio, indexRelatorio);
             break;
             case 4:
@@ -209,7 +258,7 @@ anuncio Entrada(anuncio input, int i, FILE * registroAnuncio)
     gets(input.nome);
     printf("Digite o nome do cliente: ");
     gets(input.cliente);
-    do //Pega uma data válida para a data inicial
+    do //Pega uma data valida para a data inicial
     {
         
         printf("Digite de inicio do anuncio:\n");
@@ -221,7 +270,7 @@ anuncio Entrada(anuncio input, int i, FILE * registroAnuncio)
         scanf("%d", &input.dataInicio.ano);
     }while(ValidarDataInicio(input.dataInicio) == 0);
 
-     do//Pega uma data válida para a data final
+     do//Pega uma data valida para a data final
     {
         printf("Digite a data do fim do anuncio:\n");
         printf("    Dia: ");
@@ -244,15 +293,17 @@ anuncio Entrada(anuncio input, int i, FILE * registroAnuncio)
 
 relatorio Processamento(anuncio input, int i, FILE * registroRelatorio, relatorio output)
 {
+    //Muda as variaveis globais necessarias antes de chamar Calcular()
     output.periodo = fimDias - inicioDias;
     investimento = input.investimentoDia * output.periodo;
     Calcular();
+    //Armazena os dados usando as variaveis globais
     output.totalInvestido = investimento;
     output.entrada = input;
     output.maxCiques = totalCliques;
     output.maxCompartilhamentos = totalCompartilhamentos;
     output.maxVisualizacoes = vTotal;
-
+    //Ja armazena no arquivo apropriado
     fprintf(registroRelatorio, relatorioFormatO,output.entrada.nome,output.entrada.cliente,output.entrada.dataInicio.dia,output.entrada.dataInicio.mes,output.entrada.dataInicio.ano,output.entrada.dataFim.dia,output.entrada.dataFim.mes,output.entrada.dataFim.ano,output.entrada.investimentoDia,
                 output.periodo,output.maxCiques, output.maxCompartilhamentos, output.maxVisualizacoes, output.totalInvestido);
     
@@ -282,6 +333,7 @@ void PesquisarCliente (char busca[] , relatorio pesquisado[], int index)
     int isEqual =1,  count = 0,  i=0;
     relatorio temp[100];
     printf("%s\n", pesquisado[i].entrada.cliente);
+    // salva os relatorios com resultato positivo em um vetor temporario e dois imprime o vetor
     for(i = 0; i <= index; i++)
     {  
         isEqual = strcmp (busca , pesquisado[i].entrada.cliente);
@@ -302,6 +354,7 @@ void PesquisarClienteData (char busca[] , relatorio pesquisado[], int index)
     
     int isEqual =1,  count = 0,  i=0;
     relatorio temp[100];
+    // salva os relatorios com resultato positivo em um vetos temporario e depois chama a PesquisarData()
     for(i = 0; i <= index; i++)
     {   isEqual = strcmp (busca , pesquisado[i].entrada.cliente);
        if( isEqual == 0)
@@ -317,7 +370,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
 {
      int naoEncontrado = 0,
         menuTempo = 0,// variavel que controla a pesquisa por tempo
-        pesquisaPeriodo = 0,
+        pesquisaPeriodo = 0,// variaveis para a pesquisa por periodo
         j = 0; 
      data pesquisaComeco, pesquisaFim; // variaveis para a pesquisa por data
 
@@ -347,7 +400,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
                     break;
                 case 2:
                     
-                    do //Pega uma data válida para a data inicial
+                    do //Pega uma data valida para a data inicial
                     {
                         printf("Digite de inicio do anuncio:\n");
                         printf("    Dia: ");
@@ -373,7 +426,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
                     }
                     break;
                 case 3:
-                     do//Pega uma data válida para a data final
+                     do//Pega uma data valida para a data final
                     {
                         printf("Digite a data do fim do anuncio:\n");
                         printf("    Dia: ");
@@ -400,7 +453,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
                     }
                     break;
                 case 4:
-                    do //Pega uma data válida para a data inicial
+                    do //Pega uma data valida para a data inicial
                     {
                         printf("Digite de inicio do anuncio:\n");
                         printf("    Dia: ");
@@ -411,7 +464,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
                         scanf("%d", &pesquisaComeco.ano);
                     }while(ValidarDataInicio(pesquisaComeco) == 0);
 
-                     do//Pega uma data válida para a data final
+                     do//Pega uma data valida para a data final
                     {
                         printf("Digite a data do fim do anuncio:\n");
                         printf("    Dia: ");
@@ -442,7 +495,7 @@ void PesquisarData(relatorio relatorio[], int indexRelatorio)
                 }
 }
 
-int ValidarDataInicio(data data)
+int ValidarDataInicio(data data)// Valida a data entrada, baseado em meses sempre com 30 dias
 {
     int diaV=0, mesV=0, anoV=0, isValid = 0;
     if( data.dia >= 1 && data.dia <= 30)
@@ -470,7 +523,7 @@ int ValidarDataInicio(data data)
     return isValid;
 }
 
-int ValidarDataFim(data inicio, data fim)
+int ValidarDataFim(data inicio, data fim)// Valida a data entrada, baseado em meses sempre com 30 dias e ser posterior a data de inicio do anuncio
 {
     int diaV = 0, mesV = 0, anoV = 0, isValid = 0, dataV = 0;
     if( fim.dia >= 1 && fim.dia <= 30)
