@@ -60,7 +60,5 @@ int Calcular()
     }
    
     vTotal = (vInicial + vCompartilhados);
-    
-    printf("Visualicao maxima = %0.1f\n" , vTotal);
     return 0;
 }

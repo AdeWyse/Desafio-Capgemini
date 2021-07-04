@@ -13,8 +13,7 @@
           - o mesmo anúncio é compartilhado no máximo 4 vezes em sequência
             (1ª pessoa -> compartilha -> 2ª pessoa -> compartilha - > 3ª pessoa -> compartilha -> 4ª pessoa)
     Esse é o script solução para a primeira parte do desafio. O meu entendimento é que essa parte precisa ser independente
- do resto do sistema, para poder ser usada individualmente. Na pasta "SistemaAnuncio" tem outro script ("CalculadoraSistema")
- que foi adaptado para funcionar como parte do sistema.
+ do resto do sistema, para poder ser usada individualmente.
 
  Primeira parte do desafio de programação https://www.proway.com.br/academiacapmulheresdesafio.
 

@@ -1,2 +1,2 @@
 
-    teste = Entrada(teste);
+            indexAnuncio = indexAnuncio - 1;
