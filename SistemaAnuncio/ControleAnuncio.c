@@ -43,6 +43,8 @@ anuncio Entrada(anuncio, int, FILE *); // pega o input do usuario
 relatorio Processamento(anuncio, int, FILE * , relatorio); // processa o anuncio 
 void ImprimirRelatorio(relatorio);
 void PesquisarCliente(char[], relatorio[], int);
+void PesquisarData(relatorio[], int);
+void PesquisarClienteData(char[], relatorio[], int);
 int ValidarDataInicio(data); // valida data do inicio
 int ValidarDataFim(data, data);// valida data do fim, checando se acontece depois da data inicial
 
@@ -65,12 +67,10 @@ int main()
 
     anuncio anuncio[1000];
     relatorio relatorio[1000];
-    data pesquisaComeco, pesquisaFim; // variaveis para a pesquisa por data
+    
     char pesquisaCliente[50], bufferA[200], bufferR[200];
 
     int menu = 5, 
-      menuTempo = 0, // variavel que controla a pesquisa por tempo
-      pesquisaPeriodo = 0,
       indexAnuncio = 0, // variavel que guarda o numero de anuncios já cadastrados
       indexRelatorio = 0, // variavel que guarda o numero de relatorios já cadastrados
      numDias = 0,
@@ -78,9 +78,6 @@ int main()
      i = 0,
      j = 0, 
      eof = 0;
-     
-
-
     
     if(fgets(bufferA, 200, registroAnuncio) != NULL)
     {
@@ -116,13 +113,9 @@ int main()
             
             
             indexRelatorio++;
+            printf("index %d\n", indexRelatorio);
         }
     }
-    
-   
-      
-
-     
     do//menu para interação do usuario
     {
         printf("O que voce deseja fazer?\n");
@@ -130,22 +123,43 @@ int main()
         printf("Relatorio de todos os anuncios - 2\n");
         printf("Encontrar relatorio por tempo - 3\n");
         printf("Encontar relatorio por cliente - 4\n");
+        printf("Encontar relatorio por cliente e data - 5\n");
         printf("Sair - 0\n");
         
         scanf("%d", &menu);
+
+        printf("\n");
 
         switch (menu)
             {
             case 1:
                 printf("Quantos anuncios voce quer cadastrar?\n");
                 scanf("%d", &numAnuncios);
+                
                 for(i = 0; i < numAnuncios; i++)
-                {
+                {   
                     indexAnuncio++;
                     anuncio[indexAnuncio] = Entrada(anuncio[indexAnuncio], i, registroAnuncio);
                     indexRelatorio++;
                     relatorio[indexRelatorio] = Processamento(anuncio[indexAnuncio], i, registroRelatorio, relatorio[indexRelatorio]);
+                    
                     ImprimirRelatorio(relatorio[indexRelatorio]);
+                    investimento = 0;
+                    vTotal = 0;
+                    totalCompartilhamentos = 0;
+                    totalCliques = 0;
+                }
+                
+                fcloseall;// Fecha e abre de novo os arquivos para atualizar a lista
+                registroAnuncio = fopen("RegistroAnuncio.txt", "a+");
+                if(registroAnuncio == NULL)
+                {
+                    printf("Erro abrindo arquivo RegistroAnuncio.txt\n");
+                }
+                registroRelatorio = fopen("RegistroRelatorio.txt", "a+");
+                if(registroRelatorio == NULL)
+                {
+                    printf("Erro abrindo arquivo RegistroRelatorio.txt\n");
                 }
                 break;
             case 2:
@@ -155,62 +169,22 @@ int main()
                 }
                 break;
             case 3:
-                printf("Periodo em dias - 1\n");
-                printf("Periodo em datas - 2\n");
-                scanf("%d", &menuTempo);
-                switch (menuTempo)
-                {
-                case 1:
-                    printf("Quantos dias durou o anuncio? ");
-                    scanf("%d", &pesquisaPeriodo);
-                    for(j = 0; j < indexRelatorio; j++)
-                    {
-                       if(pesquisaPeriodo == relatorio[j].periodo)
-                       {
-                           ImprimirRelatorio(relatorio[j]);
-                       }
-                    }
-                    break;
-                case 2:
-                    do //Pega uma data válida para a data inicial
-                    {
-                        printf("Digite de inicio do anuncio:\n");
-                        printf("    Dia: ");
-                        scanf("%d", &pesquisaComeco.dia);
-                        printf("    Mes: ");
-                        scanf("%d", &pesquisaComeco.mes);
-                        printf("    Ano: ");
-                        scanf("%d", &pesquisaComeco.ano);
-                    }while(ValidarDataInicio(pesquisaComeco) == 0);
-
-                    do//Pega uma data válida para a data final
-                    {
-                        printf("Digite a data do fim do anuncio:\n");
-                        printf("    Dia: ");
-                        scanf("%d", &pesquisaFim.dia);
-                        printf("    Mes: ");
-                        scanf("%d", &pesquisaFim.mes);
-                        printf("    Ano: ");
-                        scanf("%d", &pesquisaFim.ano);
-                    }while(ValidarDataFim(pesquisaComeco, pesquisaFim) == 0);
-                    pesquisaPeriodo = fimDias - inicioDias;
-                    for(j = 0; j < indexRelatorio; j++)
-                    {
-                       if(pesquisaPeriodo == relatorio[j].periodo)
-                       {
-                           ImprimirRelatorio(relatorio[j]);
-                       }
-                    }
-                    break;
-                
-                default:
-                    break;
-                }
+                PesquisarData(relatorio, indexRelatorio);
             break;
             case 4:
+                
                 printf("Digite o nome do cliente: ");
+                getchar();
                 gets(pesquisaCliente);
-                //loop procurara relatório com esse cliente
+                printf("indexR %d\n", indexRelatorio);
+                PesquisarCliente(pesquisaCliente, relatorio, indexRelatorio);
+               
+                break;
+            case 5:
+                printf("Digite o nome do cliente: ");
+                getchar();
+                gets(pesquisaCliente);
+                PesquisarClienteData(pesquisaCliente, relatorio, j);
                 break;
             case 0:
             
@@ -279,11 +253,9 @@ relatorio Processamento(anuncio input, int i, FILE * registroRelatorio, relatori
     output.maxCompartilhamentos = totalCompartilhamentos;
     output.maxVisualizacoes = vTotal;
 
-     fprintf(registroRelatorio, relatorioFormatO,output.entrada.nome,output.entrada.cliente,output.entrada.dataInicio.dia,output.entrada.dataInicio.mes,output.entrada.dataInicio.ano,output.entrada.dataFim.dia,output.entrada.dataFim.mes,output.entrada.dataFim.ano,output.entrada.investimentoDia,
+    fprintf(registroRelatorio, relatorioFormatO,output.entrada.nome,output.entrada.cliente,output.entrada.dataInicio.dia,output.entrada.dataInicio.mes,output.entrada.dataInicio.ano,output.entrada.dataFim.dia,output.entrada.dataFim.mes,output.entrada.dataFim.ano,output.entrada.investimentoDia,
                 output.periodo,output.maxCiques, output.maxCompartilhamentos, output.maxVisualizacoes, output.totalInvestido);
-
     
-        
     return output;
 
 }
@@ -291,10 +263,11 @@ relatorio Processamento(anuncio input, int i, FILE * registroRelatorio, relatori
 void ImprimirRelatorio(relatorio relatorio)
 {
     
-    printf(" Nome do anuncio: %s\n", relatorio.entrada.nome);
+    printf("\n");
+    printf("Nome do anuncio: %s\n", relatorio.entrada.nome);
     printf("Cliente: %s\n", relatorio.entrada.cliente);
     printf("Valor total investido: %0.2f\n", relatorio.totalInvestido);
-    printf("Quantidade maxima de visualizaçoes: %0.2f\n", relatorio.maxVisualizacoes);
+    printf("Quantidade maxima de visualizacoes: %0.2f\n", relatorio.maxVisualizacoes);
     printf("Quantidade maxima de cliques: %0.2f\n", relatorio.maxCiques);
     printf("Quantidade maxima de compartilhamentos: %0.2f\n", relatorio.maxCompartilhamentos);
     printf("\n");
@@ -305,12 +278,13 @@ void ImprimirRelatorio(relatorio relatorio)
 
 void PesquisarCliente (char busca[] , relatorio pesquisado[], int index)
 {  
-    
+    printf("index %d\n", index);
     int isEqual =1,  count = 0,  i=0;
     relatorio temp[100];
-    
+    printf("%s\n", pesquisado[i].entrada.cliente);
     for(i = 0; i <= index; i++)
-    {   isEqual = strcmp (busca , pesquisado[i].entrada.cliente);
+    {  
+        isEqual = strcmp (busca , pesquisado[i].entrada.cliente);
        if( isEqual == 0)
        {
            
@@ -319,9 +293,153 @@ void PesquisarCliente (char busca[] , relatorio pesquisado[], int index)
        }
     }
     for(i = 0; i<count; i++)
-    {
+    {   
         ImprimirRelatorio(temp[i]);
     }
+}
+void PesquisarClienteData (char busca[] , relatorio pesquisado[], int index)
+{  
+    
+    int isEqual =1,  count = 0,  i=0;
+    relatorio temp[100];
+    for(i = 0; i <= index; i++)
+    {   isEqual = strcmp (busca , pesquisado[i].entrada.cliente);
+       if( isEqual == 0)
+       {
+           temp[count] = pesquisado[i];
+           count++;
+       }
+    }
+    PesquisarData(temp, count);
+}
+
+void PesquisarData(relatorio relatorio[], int indexRelatorio)
+{
+     int naoEncontrado = 0,
+        menuTempo = 0,// variavel que controla a pesquisa por tempo
+        pesquisaPeriodo = 0,
+        j = 0; 
+     data pesquisaComeco, pesquisaFim; // variaveis para a pesquisa por data
+
+                printf("Periodo em dias - 1\n");
+                printf("Periodo por data inicial - 2\n");
+                printf("Periodo por data final - 3\n");
+                printf("Periodo pelas datas inicial e final - 4\n");
+                scanf("%d", &menuTempo);
+                switch (menuTempo)
+                {
+                case 1:
+                    printf("Quantos dias durou o anuncio? ");
+                    scanf("%d", &pesquisaPeriodo);
+                    for(j = 0; j < indexRelatorio; j++)
+                    {
+                       if(pesquisaPeriodo == relatorio[j].periodo)
+                       {
+                           ImprimirRelatorio(relatorio[j]);
+                           naoEncontrado++;
+                       }
+                    }
+                    if(naoEncontrado == 0)
+                    {
+                           printf("Anuncio nao encontrado\n\n");
+                           naoEncontrado = 0;
+                    }
+                    break;
+                case 2:
+                    
+                    do //Pega uma data válida para a data inicial
+                    {
+                        printf("Digite de inicio do anuncio:\n");
+                        printf("    Dia: ");
+                        scanf("%d", &pesquisaComeco.dia);
+                        printf("    Mes: ");
+                        scanf("%d", &pesquisaComeco.mes);
+                        printf("    Ano: ");
+                        scanf("%d", &pesquisaComeco.ano);
+                    }while(ValidarDataInicio(pesquisaComeco) == 0);
+
+                    for(j = 0; j < indexRelatorio; j++)
+                    {
+                        if(relatorio[j].entrada.dataInicio.dia == pesquisaComeco.dia && relatorio[j].entrada.dataInicio.mes == pesquisaComeco.mes && relatorio[j].entrada.dataInicio.ano == pesquisaComeco.ano)
+                        {
+                            ImprimirRelatorio(relatorio[j]);
+                            naoEncontrado++;
+                       }
+                    }
+                    if(naoEncontrado == 0)
+                    {
+                           printf("Anuncio nao encontrado\n\n");
+                           naoEncontrado = 0;
+                    }
+                    break;
+                case 3:
+                     do//Pega uma data válida para a data final
+                    {
+                        printf("Digite a data do fim do anuncio:\n");
+                        printf("    Dia: ");
+                        scanf("%d", &pesquisaFim.dia);
+                        printf("    Mes: ");
+                        scanf("%d", &pesquisaFim.mes);
+                        printf("    Ano: ");
+                        scanf("%d", &pesquisaFim.ano);
+                    }while(ValidarDataInicio(pesquisaFim) == 0);
+
+                    
+                    for(j = 0; j < indexRelatorio; j++)
+                    {
+                       if(relatorio[j].entrada.dataFim.dia == pesquisaFim.dia && relatorio[j].entrada.dataFim.mes == pesquisaFim.mes && relatorio[j].entrada.dataFim.ano == pesquisaFim.ano)
+                         {
+                             ImprimirRelatorio(relatorio[j]);
+                             naoEncontrado++;
+                         }    
+                    }
+                    if(naoEncontrado == 0)
+                    {
+                           printf("Anuncio nao encontrado\n\n");
+                           naoEncontrado = 0;
+                    }
+                    break;
+                case 4:
+                    do //Pega uma data válida para a data inicial
+                    {
+                        printf("Digite de inicio do anuncio:\n");
+                        printf("    Dia: ");
+                        scanf("%d", &pesquisaComeco.dia);
+                        printf("    Mes: ");
+                        scanf("%d", &pesquisaComeco.mes);
+                        printf("    Ano: ");
+                        scanf("%d", &pesquisaComeco.ano);
+                    }while(ValidarDataInicio(pesquisaComeco) == 0);
+
+                     do//Pega uma data válida para a data final
+                    {
+                        printf("Digite a data do fim do anuncio:\n");
+                        printf("    Dia: ");
+                        scanf("%d", &pesquisaFim.dia);
+                        printf("    Mes: ");
+                        scanf("%d", &pesquisaFim.mes);
+                        printf("    Ano: ");
+                        scanf("%d", &pesquisaFim.ano);
+                    }while(ValidarDataFim(pesquisaComeco, pesquisaFim) == 0);
+
+                    
+                    for(j = 0; j < indexRelatorio; j++)
+                    {
+                        if(relatorio[j].entrada.dataInicio.dia == pesquisaComeco.dia && relatorio[j].entrada.dataInicio.mes == pesquisaComeco.mes && relatorio[j].entrada.dataInicio.ano == pesquisaComeco.ano &&
+                        relatorio[j].entrada.dataFim.dia == pesquisaFim.dia && relatorio[j].entrada.dataFim.mes == pesquisaFim.mes && relatorio[j].entrada.dataFim.ano == pesquisaFim.ano)
+                        {
+                            ImprimirRelatorio(relatorio[j]);
+                            naoEncontrado++;
+                        }   
+                    } 
+                    if(naoEncontrado == 0)
+                    {
+                           printf("Anuncio nao encontrado\n\n");
+                    }
+                    break;
+                default:
+                    break;
+                }
 }
 
 int ValidarDataInicio(data data)
@@ -331,19 +449,19 @@ int ValidarDataInicio(data data)
     {
         diaV = 1;
     }else {
-        printf("Dia inválido.\n");
+        printf("Dia invalido.\n");
     }
     if( data.mes >=1 && data.mes <= 12)
     {
         mesV = 1;
     }else {
-        printf("Mês inválido.\n");
+        printf("Mes invalido.\n");
     }
     if( data.ano >= 1900 && data.ano <=2100)
     {
         anoV = 1;
     }else {
-        printf("Ano inválido.\n");
+        printf("Ano invalido.\n");
     }
     if(diaV == 1 && mesV == 1 && anoV == 1)
     {
@@ -359,19 +477,19 @@ int ValidarDataFim(data inicio, data fim)
     {
         diaV = 1;
     }else {
-        printf("Dia inválido.\n");
+        printf("Dia invalido.\n");
     }
     if( fim.mes >=1 && fim.mes <= 12)
     {
         mesV = 1;
     }else {
-        printf("Mês inválido.\n");
+        printf("Mes invalido.\n");
     }
     if( fim.ano >= 1900 && fim.ano <=2100)
     {
         anoV = 1;
     }else {
-        printf("Ano inválido.\n");
+        printf("Ano invalido.\n");
     }
 
     inicioDias = (inicio.ano*365) + inicio.dia + (inicio.mes*30);
@@ -380,7 +498,7 @@ int ValidarDataFim(data inicio, data fim)
     {
         dataV = 1;
     }else{
-        printf("Periodo inválido.\n");
+        printf("Periodo invalido.\n");
     }
     if(diaV == 1 && mesV == 1 && anoV == 1 && dataV == 1)
     {

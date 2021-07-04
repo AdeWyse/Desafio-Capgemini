@@ -41,7 +41,7 @@ int Calcular()
         vInicial = 0, // numero de visualizações inicialmente
         vAdcional = 0, // numero de visualizações a mais no fim do loop
         vCompartilhados = 0, // numero de visualizações vindas de compartilhamentos,  usado para assistência dos calculos
-        vTemp = 0,  // // numero de visualizações a mais no fim de cada interação do loop, usado para assistência dos calculos
+        vTemp = 0,  // numero de visualizações a mais no fim de cada interação do loop, usado para assistência dos calculos
         tempCompartilhamentos = 0, // numero de compartilhamentos,  usado para assistência dos calculos
         tempCliques = 0; // numero de cliques ,  usado para assistência dos calculos
     int i = 0;

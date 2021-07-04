@@ -1,2 +1,1 @@
-
-            indexAnuncio = indexAnuncio - 1;
+printf("%s\n", relatorio[0].entrada.cliente);
