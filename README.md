@@ -17,6 +17,8 @@ A resposta da 2 parte esta dentro da pasta SistemaAnuncio.
     - As datas são baseadas em meses com 30 dias sem distinção
     - Pesquisas por nome de Cliente são "Case sensitive", apenas mostram resultado se o nome da pesquisa for exatamente igual ao armazenado
     - Não tem nenhum dado armazenado nos arquivos
+    - Se estiver cadastrando 1 ou mais anuncio e fechar o console o RegistroRelatorio vai ficar sem as informações do anuncio que foi interrompido
+    - Se a lista não estiver atualizando (ex: mostrando informações vazias ou faltando informações), fechar e abrir o .exe novamente
 
       
 
