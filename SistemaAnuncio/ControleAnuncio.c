@@ -162,10 +162,9 @@ int main()
             
             
             indexRelatorio++;
-            printf("index %d\n", indexRelatorio);
         }
     }
-    do//menu para interaçaoo com o usuario
+    do//menu para interacao com o usuario
     {
         printf("O que voce deseja fazer?\n");
         printf("Cadastrar novo anuncio - 1\n");
